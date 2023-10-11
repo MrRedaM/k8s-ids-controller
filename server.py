@@ -52,13 +52,16 @@ async def upload_pcap(file: UploadFile):
     # Check if the uploaded file is a PCAP file
     if file.filename.endswith('.csv'):
         # Save the uploaded PCAP file to a temporary directory
-        base_filename = os.path.splitext(file.filename)[0]
-        with open(f"{base_filename}.csv", "wb") as csv_file:
+        with open("temp.csv", "wb") as csv_file:
             shutil.copyfileobj(file.file, csv_file)
-            csv_data = read_csv(csv_file)
-            response = send_post_request(ip_address, port, csv_data)
-            result_value = response.text if response.status_code == 200 else '0'
-            write_to_csv(result_file_path, [base_filename, result_value])
+        base_filename = os.path.splitext(file.filename)[0]
+        csv_data = read_csv("temp.csv")
+        response = send_post_request(ip_address, port, csv_data)
+        result_value = response.text if response.status_code == 200 else '0'
+        write_to_csv(result_file_path, [base_filename, result_value])
+
+        # Clean up temporary files
+        os.remove("temp.csv")
 
 
 
